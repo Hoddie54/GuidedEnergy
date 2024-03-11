@@ -10,15 +10,8 @@ export default function Homepage() {
   const [priority, setPriority] = useState<PRIORITY>(PRIORITY.DISTANCE)
   const [data, setData] = useState<Data | null>(null)
 
-  console.log(priority)
-
   useEffect(() => {
     if (rawData) {
-      // const d = {
-      //   jobs: rawData?.jobs ? [...rawData.jobs] : [],
-      //   vehicles: rawData?.vehicles ? [...rawData?.vehicles] : [],
-      // }
-
       //Creates deep copy
       const d: Data = JSON.parse(JSON.stringify(rawData))
 

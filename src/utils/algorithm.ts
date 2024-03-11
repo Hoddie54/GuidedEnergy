@@ -1,6 +1,6 @@
 import { Job, JobWeightCategory, PRIORITY, Vehicle } from "../types/types"
 
-const SENSITIVITY = 0.15
+const OUTLIER_SENSITIVITY = 1
 
 export function assignVehicles(
   jobs: Job[],
@@ -8,6 +8,9 @@ export function assignVehicles(
   priority: PRIORITY = PRIORITY.DISTANCE
 ) {
   const weightMean = getWeightMeanFromJobs(jobs, vehicles.length)
+  const weightSD = getStandardDeviation(
+    jobs.map((j) => j.constraintPayloadWeightInKg)
+  )
   //const distanceMean = getDistanceMeanFromJobs(jobs, vehicles.length)
 
   let newJobs = [...jobs]
@@ -46,7 +49,7 @@ export function assignVehicles(
       elegibleVehicles.sort((a, b) => sumWeights(a) - sumWeights(b))
     if (priority === PRIORITY.MIX) {
       const weightDifference = sumWeights(j)
-      const weightThreshold = SENSITIVITY * weightMean
+      const weightThreshold = OUTLIER_SENSITIVITY * weightSD
       if (weightDifference > weightMean + weightThreshold) {
         j.jobWeightCategory = JobWeightCategory.HEAVY
       } else if (weightThreshold < weightMean - weightThreshold) {
@@ -103,6 +106,7 @@ export function isVehicleFree(vehicle: Vehicle, job: Job) {
     return false
   })
 
+  //Returns true is no clashes for every currentJob. False if at least 1 clash
   return freeArray.reduce((a, b) => a && b, true)
 }
 
